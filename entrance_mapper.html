@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrance Plando Editor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+<style>
+* { box-sizing: border-box; }
+body {
+    font-family: Arial, sans-serif;
+    background: #000000;
+    color: #fffeee;
+    margin: 25px;
+}
+.container 
+{ 
+    max-width: 1500px; margin: auto; 
+}
+.panel {
+    background: #222222;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px #0001;
+
+}
+.flex-row 
+{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+h1, h2, h3 { margin-top: 0; }
+input, select {
+    padding: 9px;
+    width: 100%;
+    margin: 5px 0 12px;
+    color: #111111
+}
+button {
+    padding: 9px 15px;
+    border: none;
+    background: #2878c8;
+    color: white;
+    cursor: pointer;
+    margin: 4px;
+}
+button:hover { background: #185b9c; }
+button.delete { background: #c0392b; }
+button.secondary { background: #666; }
+button:disabled { background: #aaa; cursor: not-allowed; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+th, td {
+    padding: 11px;
+    border: 1px solid #333333;
+    text-align: left;
+    vertical-align: middle;
+}
+th { background: #444444; }
+tr:nth-child(even) { background: #333333; }
+td { overflow-wrap: anywhere; }
+pre {
+    background: #20242b;
+    color: #eee;
+    padding: 18px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+}
+.status 
+{ 
+    margin: 0px 0px 12px 0px; 
+    font-style: italic;
+    color: #777777;
+}
+.success { color: #218838; }
+.error { color: #c0392b; }
+.muted { color: #777; font-size: 13px; }
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.badge {
+    display: inline-block;
+    padding: 3px 7px;
+    background: #e5edf7;
+    font-size: 12px;
+    margin-right: 5px;
+}
+.empty 
+{ 
+    color: #888; 
+/*     padding: 15px;  */
+}
+.catalog-details {
+    font-size: 12px;
+    color: #666;
+    margin: 8px 0 15px;
+    line-height: 1.7;
+}
+.actions { white-space: nowrap; }
+.field-hint {
+    display: block;
+    color: #777;
+    font-size: 12px;
+    margin: 3px 0 10px;
+}
+.connection-name { font-weight: bold; }
+.catalog-id {
+    font-size: 11px;
+    color: #777;
+    margin-top: 4px;
+}
+@media(max-width: 900px) {
+    .form-grid { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    body { margin: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Entrance Plando Editor</h1>
+
+
+<div class="flex-row">
+    <div>
+        <label>Original Config JSON</label>
+        <input type="file" id="configFile" accept=".json">
+    </div>
+    <div>
+        <label>Entrance Reference YAML</label>
+        <input type="file" id="yamlFile" accept=".yml,.yaml">
+    </div>
+</div>
+
+<div id="loadStatus" class="status">
+    Waiting for files...
+</div>
+
+<div class="panel">
+    <h2>1. Existing Entrance Connections</h2>
+<p class="muted">
+    Existing connections from entrances.
+    Each source entrance can only be assigned once, and each
+    destination entrance can only be used once.
+</p>
+<div id="existingConnections">
+    <div class="empty">
+        Load your config (JSON) file first.
+    </div>
+</div>
+</div>
+<div class="panel">
+    <h2>2. Add or Update Connection</h2>
+    <p>Select a source entrance and a destination entrance to create
+    a connection. Two-way entrances need to be assigned manually.</p>
+<label>Search Entrance Catalog</label>
+<input
+    type="text"
+    id="entranceSearch"
+    placeholder="Search by catalog ID, game, area, map, or debug name..."
+>
+<div class="form-grid">
+    <div>
+        <label for="entranceSelect">Source Entrance</label>
+        <span class="field-hint">
+            The entrance being overridden.
+        </span>
+        <select id="entranceSelect">
+            <option value="">Load YAML first</option>
+        </select>
+    </div>
+    <div>
+        <label for="exitSelect">Destination Entrance</label>
+        <span class="field-hint">
+            The entrance the source will connect to.
+        </span>
+        <select id="exitSelect">
+            <option value="">Load YAML first</option>
+        </select>
+    </div>
+</div>
+<div id="entranceDetails" class="catalog-details"></div>
+<button id="saveButton" onclick="addConnection()" disabled>
+    Add Connection
+</button>
+<button class="secondary" onclick="clearForm()">
+    Clear
+</button>
+<div id="editStatus" class="status"></div>
+</div>
+<div class="panel">
+    <h2>3. Changes Preview</h2>
+<p class="muted">
+    Preview of the entrances object that will be exported.
+</p>
+<div id="changeSummary"></div>
+<pre id="preview">Load your config (JSON) file to start.</pre>
+</div>
+<div class="panel">
+    <h2>4. Export Updated Configuration</h2>
+<button onclick="exportJSON()">
+    Download updated.json
+</button>
+<button class="secondary" onclick="resetChanges()">
+    Reset Changes
+</button>
+<div id="exportStatus" class="status"></div>
+</div>
+</div>
+<script>
+
+let originalJSON = null;
+let workingJSON = null;
+let referenceEntrances = [];
+let editingSource = null;
+
+/**
+ * Escapes HTML special characters to prevent HTML injection
+ * when inserting dynamic values into innerHTML.
+ */
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function(char) {
+        const replacements = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
+        return replacements[char];
+    });
+}
+
+/**
+ * Normalizes a value into an array.
+ * @returns an empty array for null, undefined, or empty strings.
+ */
+function asArray(value) {
+    if (Array.isArray(value)) return value;
+    if (value === null || value === undefined || value === "") {
+        return [];
+    }
+    return [value];
+}
+
+/**
+ * Generates a display name for an entrance mapping.
+ * Joins the entrance areas using an arrow separator.
+ * Returns an empty string if fewer than two areas exist.
+ */
+function getMappingName(entrance) {
+    if (!entrance || entrance.areas.length < 2) {
+        return "";
+    }
+    return entrance.areas.join(" -> ");
+}
+
+/** 
+ * Gets entrances.
+ * Expected JSON structure: data > settings > plando > entrances
+ **/
+function getConnections() {
+    if (!workingJSON) return {};
+
+    if (
+        !workingJSON.data ||
+        typeof workingJSON.data !== "object" ||
+        Array.isArray(workingJSON.data)
+    ) {
+        workingJSON.data = {};
+    }
+
+    if (
+        !workingJSON.data.settings ||
+        typeof workingJSON.data.settings !== "object" ||
+        Array.isArray(workingJSON.data.settings)
+    ) {
+        workingJSON.data.settings = {};
+    }
+
+    if (
+        !workingJSON.data.settings.plando ||
+        typeof workingJSON.data.settings.plando !== "object" ||
+        Array.isArray(workingJSON.data.settings.plando)
+    ) {
+        workingJSON.data.settings.plando = {};
+    }
+
+    if (
+        !workingJSON.data.settings.plando.entrances ||
+        typeof workingJSON.data.settings.plando.entrances !== "object" ||
+        Array.isArray(workingJSON.data.settings.plando.entrances)
+    ) {
+        workingJSON.data.settings.plando.entrances = {};
+    }
+
+    return workingJSON.data.settings.plando.entrances;
+}
+
+/** 
+ * Loads configuration JSON
+ **/
+document.getElementById("configFile").addEventListener(
+    "change",
+    event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const parsed = JSON.parse(reader.result);
+                if (
+                    !parsed ||
+                    typeof parsed !== "object" ||
+                    Array.isArray(parsed)
+                ) {
+                    throw new Error(
+                        "Configuration must have an object at its root."
+                    );
+                }
+                originalJSON = parsed;
+                workingJSON = JSON.parse(
+                    JSON.stringify(parsed)
+                );
+                if (
+                    !workingJSON.data ||
+                    typeof workingJSON.data !== "object" ||
+                    Array.isArray(workingJSON.data)
+                ) {
+                    workingJSON.data = {};
+                }
+
+                if (
+                    !workingJSON.data.settings ||
+                    typeof workingJSON.data.settings !== "object" ||
+                    Array.isArray(workingJSON.data.settings)
+                ) {
+                    workingJSON.data.settings = {};
+                }
+
+                if (
+                    !workingJSON.data.settings.plando ||
+                    typeof workingJSON.data.settings.plando !== "object" ||
+                    Array.isArray(workingJSON.data.settings.plando)
+                ) {
+                    workingJSON.data.settings.plando = {};
+                }
+
+                if (
+                    !workingJSON.data.settings.plando.entrances ||
+                    typeof workingJSON.data.settings.plando.entrances !== "object" ||
+                    Array.isArray(workingJSON.data.settings.plando.entrances)
+                ) {
+                    workingJSON.data.settings.plando.entrances = {};
+                }
+                editingSource = null;
+                renderExisting();
+                updatePreview();
+                updateStatus();
+            } catch (error) {
+                originalJSON = null;
+                workingJSON = null;
+                alert(
+                    "Configuration loading error:\n" +
+                    error.message
+                );
+            }
+        };
+        reader.readAsText(file);
+    }
+);
+
+// Populate entrances event.
+document.getElementById("yamlFile").addEventListener(
+    "change",
+    event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                if (typeof jsyaml === "undefined") {
+                    throw new Error(
+                        "YAML parser failed to load. Check your internet connection."
+                    );
+                }
+                const parsed = jsyaml.load(reader.result);
+                if (
+                    !parsed ||
+                    typeof parsed !== "object" ||
+                    Array.isArray(parsed)
+                ) {
+                    throw new Error(
+                        "YAML must contain an object of entrance definitions."
+                    );
+                }
+                referenceEntrances = Object.entries(parsed)
+                    .map(([key, value]) => {
+                        if (
+                            !value ||
+                            typeof value !== "object" ||
+                            Array.isArray(value)
+                        ) {
+                            return null;
+                        }
+                        const entrance = {
+                            key,
+                            game: value.game ?? "",
+                            id: value.id ?? "",
+                            type: value.type ?? "",
+                            maps: asArray(value.maps),
+                            areas: asArray(value.areas),
+                            reverse: value.reverse ?? "",
+                            debug: asArray(value.debug)
+                        };
+                        entrance.mappingName =
+                            getMappingName(entrance);
+                        return entrance;
+                    })
+                    .filter(Boolean);
+                populateEntranceSelect();
+                renderExisting();
+                updatePreview();
+                updateStatus();
+            } catch (error) {
+                referenceEntrances = [];
+                alert(
+                    "YAML loading error:\n" +
+                    error.message
+                );
+            }
+        };
+        reader.readAsText(file);
+    }
+);
+
+/** 
+ * Updates the status of the config file and the YAML entrances file.
+ **/
+function updateStatus() {
+    const configLoaded = originalJSON !== null;
+    const yamlLoaded = referenceEntrances.length > 0;
+    const messages = [
+        configLoaded
+            ? "Configuration loaded."
+            : "Configuration not loaded.",
+        yamlLoaded
+            ? referenceEntrances.length +
+              " YAML entrances loaded."
+            : "YAML catalog not loaded."
+    ];
+    document.getElementById("loadStatus").textContent =
+        messages.join(" ");
+    document.getElementById("saveButton").disabled =
+        !configLoaded || !yamlLoaded;
+}
+
+/** 
+ * @returns {Array<any>} an entrance.
+ **/
+function findCatalogEntrance(key) {
+    return referenceEntrances.find(
+        entrance => entrance.key === key
+    );
+}
+
+/** 
+ * @returns an entrance display label.
+ **/
+function getEntranceLabel(entrance) {
+    if (!entrance) return "Unknown entrance";
+    const name = entrance.mappingName || entrance.key;
+    return name + " [" + entrance.key + "]";
+}
+
+/** 
+ * Populates entrance selectors.
+ **/
+function populateEntranceSelect() {
+    const search = document.getElementById("entranceSearch")
+        .value
+        .toLowerCase();
+
+    const entranceSelect =
+        document.getElementById("entranceSelect");
+
+    const exitSelect =
+        document.getElementById("exitSelect");
+
+    // Remember current selections.
+    const previousEntrance = entranceSelect.value;
+    const previousExit = exitSelect.value;
+
+    entranceSelect.innerHTML =
+        '<option value="">-- Select source entrance --</option>';
+
+    exitSelect.innerHTML =
+        '<option value="">-- Select destination entrance --</option>';
+
+    // Filter catalog, but always retain current selections.
+    const filtered = referenceEntrances.filter(entrance => {
+        const searchable = [
+            entrance.key,
+            entrance.game,
+            entrance.id,
+            entrance.type,
+            ...entrance.areas,
+            ...entrance.maps,
+            ...entrance.debug,
+            entrance.reverse,
+            entrance.mappingName
+        ].join(" ").toLowerCase();
+
+        return (
+            searchable.includes(search) ||
+            entrance.key === previousEntrance ||
+            entrance.key === previousExit
+        );
+    });
+
+    filtered.forEach(entrance => {
+        const label = getEntranceLabel(entrance);
+
+        const entranceOption = document.createElement("option");
+        entranceOption.value = entrance.key;
+        entranceOption.textContent = label;
+        entranceSelect.appendChild(entranceOption);
+
+        const exitOption = document.createElement("option");
+        exitOption.value = entrance.key;
+        exitOption.textContent = label;
+        exitSelect.appendChild(exitOption);
+    });
+
+    // Restore previous selections.
+    entranceSelect.value = previousEntrance;
+    exitSelect.value = previousExit;
+
+    showEntranceDetails();
+}
+
+// Search event
+document.getElementById("entranceSearch").addEventListener(
+    "input",
+    populateEntranceSelect
+);
+
+// Select events
+document.getElementById("entranceSelect").addEventListener(
+    "change",
+    showEntranceDetails
+);
+document.getElementById("exitSelect").addEventListener(
+    "change",
+    showEntranceDetails
+);
+
+/**
+* Shows selected entrance details.
+**/
+function showEntranceDetails() {
+    const entranceKey =
+        document.getElementById("entranceSelect").value;
+    const exitKey =
+        document.getElementById("exitSelect").value;
+    const entrance = findCatalogEntrance(entranceKey);
+    const exit = findCatalogEntrance(exitKey);
+    const container =
+        document.getElementById("entranceDetails");
+    const details = [];
+    if (entrance) {
+        details.push(`
+            <strong>Selected Source Entrance</strong><br>
+            Catalog Key: ${escapeHTML(entrance.key)}<br>
+            Entrance ID: ${escapeHTML(entrance.id)}<br>
+            Game: ${escapeHTML(entrance.game)}<br>
+            Type: ${escapeHTML(entrance.type)}<br>
+            Areas: ${escapeHTML(entrance.areas.join(" -> ") || "None")}<br>
+            Maps: ${escapeHTML(entrance.maps.join(", ") || "None")}<br>
+            Reverse: ${escapeHTML(entrance.reverse || "None")}<br>
+            Debug: ${escapeHTML(entrance.debug.join(", ") || "None")}
+        `);
+    }
+    if (exit) {
+        details.push(`
+            <hr>
+            <strong>Selected Destination Entrance</strong><br>
+            Catalog Key: ${escapeHTML(exit.key)}<br>
+            Entrance ID: ${escapeHTML(exit.id)}<br>
+            Game: ${escapeHTML(exit.game)}<br>
+            Type: ${escapeHTML(exit.type)}<br>
+            Areas: ${escapeHTML(exit.areas.join(" -> ") || "None")}<br>
+            Maps: ${escapeHTML(exit.maps.join(", ") || "None")}<br>
+            Reverse: ${escapeHTML(exit.reverse || "None")}<br>
+            Debug: ${escapeHTML(exit.debug.join(", ") || "None")}
+        `);
+    }
+    container.innerHTML = details.join("");
+}
+
+/**
+* Validates the connection between two entrances.
+* @returns {string} an error message.
+**/
+function validateConnection(source, destination) {
+    if (!source || !destination) {
+        return "Both source and destination entrances are required.";
+    }
+    if (source === destination) {
+        return "Source and destination cannot be the same entrance.";
+    }
+    if (!findCatalogEntrance(source)) {
+        return "The source entrance is not in the loaded YAML catalog.";
+    }
+    if (!findCatalogEntrance(destination)) {
+        return "The destination entrance is not in the loaded YAML catalog.";
+    }
+    const connections = getConnections();
+    for (const [existingSource, existingDestination] of Object.entries(connections)) {
+        if (existingSource === editingSource) {
+            continue;
+        }
+        if (existingSource === source) {
+            return "This source entrance already has a connection.";
+        }
+        if (existingDestination === destination) {
+            return "This destination entrance is already assigned to another connection.";
+        }
+    }
+    return null;
+}
+
+/**
+* Adds or updates a connection.
+**/
+function addConnection() {
+    if (!workingJSON) {
+        alert("Load the configuration JSON first.");
+        return;
+    }
+    const source =
+        document.getElementById("entranceSelect").value;
+    const destination =
+        document.getElementById("exitSelect").value;
+    const validationError = validateConnection(
+        source,
+        destination
+    );
+    if (validationError) {
+        alert(validationError);
+        return;
+    }
+    const connections = getConnections();
+    if (editingSource !== null) {
+        delete connections[editingSource];
+    }
+    connections[source] = destination;
+    clearForm();
+    renderExisting();
+    updatePreview();
+    document.getElementById("editStatus").textContent =
+        "Connection saved successfully.";
+}
+
+/**
+* Edits a connection.
+**/
+function editConnection(source) {
+    const connections = getConnections();
+    const destination = connections[source];
+    if (!destination) return;
+    editingSource = source;
+    document.getElementById("entranceSearch").value = "";
+    populateEntranceSelect();
+    document.getElementById("entranceSelect").value = source;
+    document.getElementById("exitSelect").value = destination;
+    showEntranceDetails();
+    document.getElementById("editStatus").textContent =
+        "Editing connection: " + source;
+}
+
+/**
+* Deletes a connection.
+**/
+function deleteConnection(source) {
+    if (!confirm("Delete this entrance connection?")) {
+        return;
+    }
+    const connections = getConnections();
+    delete connections[source];
+    if (editingSource === source) {
+        clearForm();
+    }
+    renderExisting();
+    updatePreview();
+}
+
+/**
+* Renders existing connections.
+**/
+function renderExisting() {
+    const container =
+        document.getElementById("existingConnections");
+    const connections = getConnections();
+    const entries = Object.entries(connections);
+    if (!entries.length) {
+        container.innerHTML = `
+            <div class="empty">
+                No entrance connections configured.
+            </div>
+        `;
+        return;
+    }
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Source Entrance</th>
+                    <th>Destination Entrance</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    entries.forEach(([source, destination]) => {
+        const sourceEntrance = findCatalogEntrance(source);
+        const destinationEntrance = findCatalogEntrance(destination);
+        html += `
+            <tr>
+                <td>
+                    <div class="connection-name">
+                        ${escapeHTML(
+                            sourceEntrance
+                                ? sourceEntrance.mappingName || source
+                                : source
+                        )}
+                    </div>
+                    <div class="catalog-id">
+                        ${escapeHTML(source)}
+                    </div>
+                </td>
+                <td>
+                    <div class="connection-name">
+                        ${escapeHTML(
+                            destinationEntrance
+                                ? destinationEntrance.mappingName || destination
+                                : destination
+                        )}
+                    </div>
+                    <div class="catalog-id">
+                        ${escapeHTML(destination)}
+                    </div>
+                </td>
+                <td class="actions">
+                    <button
+                        class="edit-button"
+                        data-source="${escapeHTML(source)}">
+                        Edit
+                    </button>
+                    <button
+                        class="delete delete-button"
+                        data-source="${escapeHTML(source)}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    html += `
+            </tbody>
+        </table>
+    `;
+    container.innerHTML = html;
+    container.querySelectorAll(".edit-button").forEach(button => {
+        button.addEventListener("click", () => {
+            editConnection(button.dataset.source);
+        });
+    });
+    container.querySelectorAll(".delete-button").forEach(button => {
+        button.addEventListener("click", () => {
+            deleteConnection(button.dataset.source);
+        });
+    });
+}
+
+function clearForm() {
+    editingSource = null;
+    document.getElementById("entranceSearch").value = "";
+    document.getElementById("entranceSelect").value = "";
+    document.getElementById("exitSelect").value = "";
+    document.getElementById("entranceDetails").textContent = "";
+    document.getElementById("editStatus").textContent = "";
+    populateEntranceSelect();
+}
+
+/**
+* Previews changes.
+**/
+function updatePreview() {
+    if (!workingJSON) return;
+
+    const original =
+        originalJSON?.data?.settings?.plando?.entrances &&
+        typeof originalJSON.data.settings.plando.entrances === "object" &&
+        !Array.isArray(originalJSON.data.settings.plando.entrances)
+            ? originalJSON.data.settings.plando.entrances
+            : {};
+
+    const updated = getConnections();
+
+    const added = [];
+    const removed = [];
+    const modified = [];
+
+    for (const [source, destination] of Object.entries(updated)) {
+        if (!Object.prototype.hasOwnProperty.call(original, source)) {
+            added.push({ source, destination });
+        } else if (original[source] !== destination) {
+            modified.push({
+                source,
+                oldDestination: original[source],
+                newDestination: destination
+            });
+        }
+    }
+
+    for (const [source, destination] of Object.entries(original)) {
+        if (!Object.prototype.hasOwnProperty.call(updated, source)) {
+            removed.push({ source, destination });
+        }
+    }
+
+    document.getElementById("changeSummary").innerHTML = `
+        <span class="badge">${added.length} Added</span>
+        <span class="badge">${modified.length} Modified</span>
+        <span class="badge">${removed.length} Removed</span>
+        <span class="badge">${Object.keys(updated).length} Total Connections</span>
+    `;
+
+    const output = {
+        data: {
+            settings: {
+                plando: {
+                    entrances: updated
+                }
+            }
+        }
+    };
+
+    document.getElementById("preview").textContent =
+        JSON.stringify(output, null, 4);
+}
+
+/**
+* Exports updated JSON.
+**/
+function exportJSON() {
+    if (!workingJSON) {
+        alert("Load a configuration JSON first.");
+        return;
+    }
+    const blob = new Blob(
+        [
+            JSON.stringify(workingJSON, null, 4)
+        ],
+        {
+            type: "application/json"
+        }
+    );
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "updated.json";
+    link.click();
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+    }, 1000);
+    document.getElementById("exportStatus").textContent =
+        "updated.json downloaded successfully.";
+}
+
+function resetChanges() {
+    if (!originalJSON) return;
+
+    if (!confirm(
+        "Discard all changes and restore the original configuration?"
+    )) {
+        return;
+    }
+
+    workingJSON = JSON.parse(
+        JSON.stringify(originalJSON)
+    );
+
+    clearForm();
+    renderExisting();
+    updatePreview();
+
+    document.getElementById("editStatus").textContent =
+        "Changes reset successfully.";
+}
+</script>
+</body>
+</html>
