@@ -58,7 +58,8 @@ GG_CAVE_EXIT_MONKEY_PLAYGROUND:
 
 
 # Config (JSON) file
-This is the expected JSON structure:
+This is the config file containing OoTMM seed settings.
+Expected JSON structure:
 
 ```
 {
