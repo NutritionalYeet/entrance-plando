@@ -15,7 +15,7 @@ Although plando entrances don't display in the OoTMM web generator (v33.0), the 
 8. Try generating a seed.
 9. Review the spoiler log to see if any custom entrance connections were skipped.
 
-**By default, the app fetches its YAML parser from Cloudflare’s CDN. To use the app without an internet connection, download js-yaml.min.js and place it in the same directory as entrance_mapper.html. Then, you can edit this line to reference the parser locally:
+**By default, the app fetches the YAML parser from Cloudflare’s CDN. To use the app without an internet connection, download js-yaml.min.js and place it in the same directory as entrance_mapper.html. Then, you can edit this line to reference the parser locally:
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 ```
