@@ -69,6 +69,7 @@ Expected JSON structure:
             // Other settings...
             "plando": {
                 "entrances": {
+                    // Your custom entrances will appear here.
                     "SOURCE_ENTRANCE": "DESTINATION_ENTRANCE"
                 }
             }
