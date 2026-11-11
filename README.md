@@ -8,11 +8,12 @@ Although plando entrances don't display in the OoTMM web generator (v33.0), the 
 1. Export a config file from OoTMM. The YAML file can be found in the OoTMM repo.
 2. Download the entrance_mapper.html file or clone this repo.
 3. Open entrance_mapper.html in a browser.
-4. Load the config file and YAML file. It will require an internet connection to fetch the YAML parser. **
+4. Load the config file and YAML file. It will require an internet connection to fetch the YAML parser.**
 5. Edit entrances within the app.
 6. When finished, click "Download updated.json." Review file differences.
 7. Import updated.json into OoTMM. You may want to re-export the config file to make sure it uploaded correctly.
 8. Try generating a seed.
+9. Review the spoiler log to see if any custom entrance connections were skipped.
 
 **By default, the app fetches its YAML parser from Cloudflare’s CDN. To use the app without an internet connection, download js-yaml.min.js and place it in the same directory as entrance_mapper.html. Then, you can edit this line to reference the parser locally:
 ```
