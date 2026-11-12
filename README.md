@@ -77,3 +77,6 @@ Expected JSON structure:
     }
 }
 ```
+
+# Notes
+This is for purely manual entrance assignment; it does not take rando logic into account.
