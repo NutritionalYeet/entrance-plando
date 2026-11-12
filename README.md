@@ -9,7 +9,7 @@ Although plando entrances currently do not display in the OoTMM web generator (v
 2. Download the entrance_mapper.html file or clone this repo.
 3. Open entrance_mapper.html in a browser.
 4. Load the config file and YAML file. It will require an internet connection to fetch the YAML parser.**
-5. Edit entrances within the app.
+5. Edit entrances within the app. You will need to assign two-way entrances manually.
 6. When finished, click "Download updated.json." Review file differences.
 7. Import updated.json into OoTMM. You may want to re-export the config file to make sure it uploaded correctly.
 8. Try generating a seed.
