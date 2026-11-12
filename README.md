@@ -1,7 +1,7 @@
 # entrance-plando
 This app provides a UI for entrance plando in the OoTMM randomizer. You can import entrances from a YAML file, use them to create custom entrance connections, and export an updated config file that can be uploaded to OoTMM.
 
-Although plando entrances don't display in the OoTMM web generator (v33.0), the updated config file should work in conjunction with entrance shuffling.
+Although plando entrances currently do not display in the OoTMM web generator (v33.0), the updated config file should work in conjunction with entrance shuffling.
 
 
 # Instructions
