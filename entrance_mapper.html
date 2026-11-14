@@ -162,6 +162,8 @@ pre {
     <p>Select a source entrance and a destination entrance to create
     a connection. Two-way entrances need to be assigned manually.</p>
 <label>Search Entrance Catalog</label>
+    
+
 <input
     type="text"
     id="entranceSearch"
@@ -187,6 +189,22 @@ pre {
         </select>
     </div>
 </div>
+    
+<div style="display: inline-flex; align-items: center; gap: 4px;">
+
+    <input
+        type="checkbox"
+        id="showEntranceExtraDetails"
+        style="width: auto; margin: 0; flex: 0 0 auto;"
+    >
+
+    <label
+        for="showEntranceExtraDetails"
+        style="width: auto; margin: 0; flex: 0 0 auto;"
+    >Show entrance details</label>
+
+</div>
+
 <div id="entranceDetails" class="catalog-details"></div>
 <button id="saveButton" onclick="addConnection()" disabled>
     Add Connection
@@ -562,6 +580,10 @@ document.getElementById("exitSelect").addEventListener(
     "change",
     showEntranceDetails
 );
+document.getElementById("showEntranceExtraDetails").addEventListener(
+    "change",
+    showEntranceDetails
+);
 
 /**
 * Shows selected entrance details.
@@ -576,31 +598,44 @@ function showEntranceDetails() {
     const container =
         document.getElementById("entranceDetails");
     const details = [];
+    
+    const showEntranceExtraDetails = document.getElementById("showEntranceExtraDetails").checked;
+    
     if (entrance) {
         details.push(`
+            
             <strong>Selected Source Entrance</strong><br>
-            Catalog Key: ${escapeHTML(entrance.key)}<br>
-            Entrance ID: ${escapeHTML(entrance.id)}<br>
-            Game: ${escapeHTML(entrance.game)}<br>
-            Type: ${escapeHTML(entrance.type)}<br>
-            Areas: ${escapeHTML(entrance.areas.join(" -> ") || "None")}<br>
-            Maps: ${escapeHTML(entrance.maps.join(", ") || "None")}<br>
-            Reverse: ${escapeHTML(entrance.reverse || "None")}<br>
-            Debug: ${escapeHTML(entrance.debug.join(", ") || "None")}
+            Key: ${escapeHTML(entrance.key)}<br>
+            ${ 
+                showEntranceExtraDetails ?
+                `
+                ID: ${escapeHTML(entrance.id)}<br>
+                Game: ${escapeHTML(entrance.game)}<br>
+                Type: ${escapeHTML(entrance.type)}<br>
+                Areas: ${escapeHTML(entrance.areas.join(" -> ") || "None")}<br>
+                Maps: ${escapeHTML(entrance.maps.join(", ") || "None")}<br>
+                Reverse: ${escapeHTML(entrance.reverse || "None")}<br>
+                Debug: ${escapeHTML(entrance.debug.join(", ") || "None")}
+           ` : ``}
         `);
     }
     if (exit) {
         details.push(`
             <hr>
-            <strong>Selected Destination Entrance</strong><br>
-            Catalog Key: ${escapeHTML(exit.key)}<br>
-            Entrance ID: ${escapeHTML(exit.id)}<br>
-            Game: ${escapeHTML(exit.game)}<br>
-            Type: ${escapeHTML(exit.type)}<br>
-            Areas: ${escapeHTML(exit.areas.join(" -> ") || "None")}<br>
-            Maps: ${escapeHTML(exit.maps.join(", ") || "None")}<br>
-            Reverse: ${escapeHTML(exit.reverse || "None")}<br>
-            Debug: ${escapeHTML(exit.debug.join(", ") || "None")}
+            <strong>Destination</strong><br>
+            Key: ${escapeHTML(exit.key)}<br>
+            ${ 
+                showEntranceExtraDetails ?
+                `
+                ID: ${escapeHTML(exit.id)}<br>
+                Game: ${escapeHTML(exit.game)}<br>
+                Type: ${escapeHTML(exit.type)}<br>
+                Areas: ${escapeHTML(exit.areas.join(" -> ") || "None")}<br>
+                Maps: ${escapeHTML(exit.maps.join(", ") || "None")}<br>
+                Reverse: ${escapeHTML(exit.reverse || "None")}<br>
+                Debug: ${escapeHTML(exit.debug.join(", ") || "None")}
+                `
+            : ``}
         `);
     }
     container.innerHTML = details.join("");
