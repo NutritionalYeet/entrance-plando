@@ -5,7 +5,7 @@ Although plando entrances currently do not display in the OoTMM web generator (v
 
 
 # Instructions
-1. Export a config file from OoTMM. The YAML file can be found in the OoTMM repo.
+1. Export a config file from OoTMM. The [YAML file](https://github.com/OoTMM/OoTMM/blob/master/data/defs/entrances.yml) can be found in the OoTMM repo.
 2. Download the entrance_mapper.html file or clone this repo.
 3. Open entrance_mapper.html in a browser.
 4. Load the config file and YAML file. It will require an internet connection to fetch the YAML parser.**
