@@ -24,7 +24,7 @@ Though it should work with entrance shuffling, certain combinations of entrances
 ```
 
 # Troubleshooting
-If an error occurs during world generation, try removing individual entrance plando connections. Certain entrances, such as those connected to end bosses, may not be processed as expected. If it fails to generate the item pool, you could try shuffling more item locations, increasing the number of items, or adjusting entrance polarity in the OoTMM entrance shuffle settings.
+If an error occurs during world generation, try removing individual entrance plando connections. Certain entrances, such as those connected to end bosses, may not work. If it fails to generate the item pool, you could try shuffling more item locations, increasing the number of items, or adjusting entrance polarity in the OoTMM entrance shuffle settings.
 
 
 # Files Required
