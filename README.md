@@ -2,7 +2,7 @@
 
 A tool for editing custom entrance connections in the OoTMM combo randomizer.
 
-Although entrance plando is technically supported in the OoTMM web generator (v33.0), custom entrances currently do not display. This tool allows you to directly edit a config file downloaded from the web generator, and add entrances from [entrances.yml](https://github.com/OoTMM/OoTMM/blob/master/data/defs/entrances.yml). The updated config can then re-upload to the OoTMM web generator with plando connections. 
+Although entrance plando is technically supported in the OoTMM web generator (v33.0), custom entrances currently do not display. This tool allows you to directly edit a config file downloaded from the web generator, and add entrances from [entrances.yml](https://github.com/OoTMM/OoTMM/blob/master/data/defs/entrances.yml). The updated config can then be re-uploaded to the OoTMM web generator with plando connections. 
 
 Though it should work with entrance shuffling, certain combinations of entrances may cause generator errors, be overridden by the generator, or cause weird polarity. See troubleshooting notes.
 
